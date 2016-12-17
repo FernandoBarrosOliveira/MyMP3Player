@@ -250,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
             playBackPause=false;
         }
         musicaController.show(0);
-        ListaMusicaAdpter.ViewHolder.SelectItem(recyclerViewMusicas);
+
     }
 
     private void  playPrev(){
