@@ -8,10 +8,14 @@
     tools:context="br.com.equipe3.mymp3player.activity.MainActivity"
     android:weightSum="1">
 
-    <android.support.v7.widget.RecyclerView
+
+
+       <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/recycler"
-        android:layout_weight="0.94" />
+        android:layout_weight="0.94"
+        android:background="?attr/colorPrimary" />
+
 
 </LinearLayout>
