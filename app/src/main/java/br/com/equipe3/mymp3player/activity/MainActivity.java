@@ -33,7 +33,6 @@ import br.com.equipe3.mymp3player.model.Musica;
 import br.com.equipe3.mymp3player.servico.MusicService;
 
 public class MainActivity extends AppCompatActivity implements OnMusicaClickListener, MediaController.MediaPlayerControl {
-//    private Button btnPlay;
     private RecyclerView recyclerViewMusicas;
     public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123; // colocar em um resource de constant
     private MusicService musicService;
@@ -51,8 +50,6 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
 
         recyclerViewMusicas = (RecyclerView) findViewById(R.id.recycler);
 
-
-
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
 
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
@@ -63,15 +60,9 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
         }
 
         musicaController = new MusicaController(this);
-
         setMusicaController();
+        //musicaController.show(0);
 
-//        btnPlay.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//            }
-//        });
     }
 
 
@@ -92,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
                        cursor.getLong(ColunaIdMusica),
                        cursor.getString(ColunaNomeMusica),
                        cursor.getString(ColunaNomeArtista)));
-
             }
 
         }
@@ -116,17 +106,10 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     iniciaRecycleMusica();
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                 }
                 return;
             }
-            // other 'case' lines to check for other
-            // permissions this app might request
+
         }
     }
 

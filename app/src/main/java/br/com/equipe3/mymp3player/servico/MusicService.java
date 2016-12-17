@@ -1,9 +1,11 @@
 package br.com.equipe3.mymp3player.servico;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -17,6 +19,7 @@ import android.util.Log;
 
 import java.util.List;
 
+import br.com.equipe3.mymp3player.R;
 import br.com.equipe3.mymp3player.activity.MainActivity;
 import br.com.equipe3.mymp3player.model.Musica;
 
@@ -89,13 +92,21 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
+
         Notification.Builder builder = new Notification.Builder(this);
+        builder.setSmallIcon(R.mipmap.ic_launcher);
         builder.setContentIntent(pendingIntent);
         builder.setTicker(tituloMusica);
         builder.setOngoing(true);
         builder.setContentTitle("Tocando");
         builder.setContentText(tituloMusica);
-        Notification not = null;
+
+        NotificationManager notificationManager = (NotificationManager)
+                getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+      //  notificationManager.notify(NOTIFY_ID, builder.build());
+
+      Notification not = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
             not = builder.build();
         }
