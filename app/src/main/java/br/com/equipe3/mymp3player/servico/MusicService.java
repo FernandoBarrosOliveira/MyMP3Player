@@ -38,6 +38,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private static final  int NOTIFY_ID = 1;
     private MusicaController musicaController;
 
+    public int getPosicaoMusica() {
+        return posicaoMusica;
+    }
+
     public void setMusicaController(MusicaController musicaController) {
         this.musicaController = musicaController;
     }

@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
     private Intent playIntent;
     private boolean musicBound = false;
     private MusicaController musicaController;
+    private ListaMusicaAdpter listaMusicaAdpter;
     private boolean paused=false, playBackPause=false;
 
 
@@ -92,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
 
     private void iniciaRecycleMusica(){
         this.listaMusica  = AlimentaListaMusica();
-        ListaMusicaAdpter listaMusicaAdpter = new ListaMusicaAdpter(listaMusica);
+        listaMusicaAdpter = new ListaMusicaAdpter(listaMusica);
         recyclerViewMusicas.setAdapter(listaMusicaAdpter);
         recyclerViewMusicas.setLayoutManager(new LinearLayoutManager(this));
         listaMusicaAdpter.setMusicaClickListener(this);
@@ -249,6 +250,8 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
             setMusicaController();
             playBackPause=false;
         }
+        listaMusicaAdpter.setPosicaoCorrente(musicService.getPosicaoMusica());
+        listaMusicaAdpter.notifyDataSetChanged();
         musicaController.show(0);
 
     }
@@ -259,6 +262,8 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
             setMusicaController();
             playBackPause=false;
         }
+        listaMusicaAdpter.setPosicaoCorrente(musicService.getPosicaoMusica());
+        listaMusicaAdpter.notifyDataSetChanged();
         musicaController.show(0);
     }
 
