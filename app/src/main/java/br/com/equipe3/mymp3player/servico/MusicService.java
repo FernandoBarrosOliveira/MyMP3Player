@@ -1,5 +1,7 @@
 package br.com.equipe3.mymp3player.servico;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentUris;
 import android.content.Intent;
@@ -15,6 +17,7 @@ import android.util.Log;
 
 import java.util.List;
 
+import br.com.equipe3.mymp3player.activity.MainActivity;
 import br.com.equipe3.mymp3player.model.Musica;
 
 /**
@@ -27,7 +30,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private List<Musica> listaMusica;
     private int posicaoMusica;
     private final IBinder musicaBinder = new MusicaBinder();
-
+    private String tituloMusica = "";
+    private static final  int NOTIFY_ID = 1;
 
 
     public void onCreate(){
@@ -35,6 +39,13 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mediaPlayer = new MediaPlayer();
         iniciarMusicPlayer();
     }
+
+    @Override
+    public void onDestroy(){
+        stopForeground(true);
+    }
+
+
 
     public void iniciarMusicPlayer(){
         mediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
@@ -58,17 +69,37 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-
+        if (mediaPlayer.getCurrentPosition() >0){
+            mediaPlayer.reset();
+            playNext();
+        }
     }
 
     @Override
     public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+        mediaPlayer.release();
         return false;
     }
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         mediaPlayer.start();
+
+        Intent notIntent = new Intent(this, MainActivity.class);
+        notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification.Builder builder = new Notification.Builder(this);
+        builder.setContentIntent(pendingIntent);
+        builder.setTicker(tituloMusica);
+        builder.setOngoing(true);
+        builder.setContentTitle("Tocando");
+        builder.setContentText(tituloMusica);
+        Notification not = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            not = builder.build();
+        }
+        startForeground(NOTIFY_ID, not);
 
     }
 
@@ -85,6 +116,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public  void tocaMusica(){
         mediaPlayer.reset();
         Musica musica = listaMusica.get(posicaoMusica);
+        tituloMusica=musica.getNomeMusica();
         long musicaAtual = musica.getId();
         Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 musicaAtual);
@@ -100,6 +132,47 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public void setMusica(int musicaIndice){
         posicaoMusica = musicaIndice;
+    }
+
+    public int getPosn(){
+        return mediaPlayer.getCurrentPosition();
+    }
+
+    public int getDuracao(){
+        return mediaPlayer.getDuration();
+    }
+
+    public boolean isPng(){
+        return mediaPlayer.isPlaying();
+    }
+
+    public void pausePlayer(){
+        mediaPlayer.pause();
+    }
+
+    public void seek(int posicao){
+        mediaPlayer.seekTo(posicao);
+    }
+
+    public void go (){
+        mediaPlayer.start();
+    }
+
+    public void playPrev(){
+        posicaoMusica --;
+        if(posicaoMusica < 0){
+            posicaoMusica = listaMusica.size()-1;
+        }
+        tocaMusica();
+
+    }
+
+    public void playNext(){
+        posicaoMusica++;
+        if (posicaoMusica >= listaMusica.size()){
+            posicaoMusica = 0;
+        }
+        tocaMusica();
     }
 
 }

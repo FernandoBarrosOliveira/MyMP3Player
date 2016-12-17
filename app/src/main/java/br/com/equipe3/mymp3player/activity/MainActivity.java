@@ -19,23 +19,29 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
+import android.widget.MediaController;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import br.com.equipe3.mymp3player.R;
 import br.com.equipe3.mymp3player.adpter.ListaMusicaAdpter;
+import br.com.equipe3.mymp3player.controller.MusicaController;
 import br.com.equipe3.mymp3player.interfaces.OnMusicaClickListener;
 import br.com.equipe3.mymp3player.model.Musica;
 import br.com.equipe3.mymp3player.servico.MusicService;
 
-public class MainActivity extends AppCompatActivity implements OnMusicaClickListener {
+public class MainActivity extends AppCompatActivity implements OnMusicaClickListener, MediaController.MediaPlayerControl {
+//    private Button btnPlay;
     private RecyclerView recyclerViewMusicas;
     public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123; // colocar em um resource de constant
     private MusicService musicService;
     private List<Musica> listaMusica;
     private Intent playIntent;
     private boolean musicBound = false;
+    private MusicaController musicaController;
+    private boolean paused=false, playBackPause=false;
 
 
     @Override
@@ -45,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
 
         recyclerViewMusicas = (RecyclerView) findViewById(R.id.recycler);
 
+
+
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
 
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
@@ -53,6 +61,17 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
         } else {
             iniciaRecycleMusica();
         }
+
+        musicaController = new MusicaController(this);
+
+        setMusicaController();
+
+//        btnPlay.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//            }
+//        });
     }
 
 
@@ -140,11 +159,143 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
 
     @Override
     public void OnMusicaClick(View view, int position) {
-
-        startService(playIntent);
         musicService.setMusica(position);
         musicService.tocaMusica();
+        if(playBackPause){
+            setMusicaController();
+            playBackPause=false;
+        }
+        musicaController.show(0);
 
 
     }
+
+    @Override
+    public void start() {
+        musicService.go();
+    }
+
+    @Override
+    public void pause() {
+        playBackPause=false;
+        musicService.pausePlayer();
+
+    }
+
+    @Override
+    public int getDuration() {
+        if(musicService != null && musicBound &&musicService.isPng()){
+            return musicService.getDuracao();
+        }else return 0;
+
+    }
+
+    @Override
+    public int getCurrentPosition() {
+        if(musicService != null && musicBound &&musicService.isPng()){
+            return musicService.getPosn();
+        }else return 0;
+    }
+
+    @Override
+    public void seekTo(int posicao) {
+        musicService.seek(posicao);
+    }
+
+    @Override
+    public boolean isPlaying() {
+        if(musicService != null && musicBound){
+            return musicService.isPng();
+        }
+        return false;
+    }
+
+    @Override
+    public int getBufferPercentage() {
+        return 0;
+    }
+
+    @Override
+    public boolean canPause() {
+        return true;
+    }
+
+    @Override
+    public boolean canSeekBackward() {
+        return true;
+    }
+
+    @Override
+    public boolean canSeekForward() {
+        return true;
+    }
+
+    @Override
+    public int getAudioSessionId() {
+        return 0;
+    }
+
+    public void setMusicaController() {
+
+        musicaController.setPrevNextListeners(
+            new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   playNext();
+               }
+            },
+
+            new View.OnClickListener(){
+                @Override
+                public void onClick(View view) {
+                    playPrev();
+                }
+        });
+
+        musicaController.setMediaPlayer(this);
+        musicaController.setAnchorView(findViewById(R.id.recycler));
+        musicaController.setEnabled(true);
+    }
+
+    private void playNext(){
+        musicService.playNext();
+        if(playBackPause){
+            setMusicaController();
+            playBackPause=false;
+        }
+        musicaController.show(0);
+    }
+
+    private void  playPrev(){
+        musicService.playPrev();
+        if(playBackPause){
+            setMusicaController();
+            playBackPause=false;
+        }
+        musicaController.show(0);
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        paused = true;
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        if (paused){
+            setMusicaController();
+            paused=false;
+        }
+    }
+
+    @Override
+    protected void onStop(){
+        musicaController.hide();
+        super.onStop();
+    }
+
+
+
 }
