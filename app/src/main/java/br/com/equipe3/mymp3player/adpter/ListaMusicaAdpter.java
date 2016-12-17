@@ -1,6 +1,7 @@
 package br.com.equipe3.mymp3player.adpter;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +51,7 @@ public class ListaMusicaAdpter extends RecyclerView.Adapter<ListaMusicaAdpter.Vi
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private TextView txtMusica, txtArtista;
+        private SparseBooleanArray selectedItems = new SparseBooleanArray();
 
 
         public ViewHolder(View itemView) {
@@ -62,8 +64,18 @@ public class ListaMusicaAdpter extends RecyclerView.Adapter<ListaMusicaAdpter.Vi
 
         @Override
         public void onClick(View view) {
-            if (musicaClickListener != null) musicaClickListener.OnMusicaClick(view, getAdapterPosition());
+            if (musicaClickListener != null)
+                musicaClickListener.OnMusicaClick(view, getAdapterPosition());
+            SelectItem(view);
+        }
 
+        public void SelectItem(View view){
+            if (selectedItems.get(getAdapterPosition(), false)){
+                selectedItems.delete(getAdapterPosition());
+                view.setSelected(false);
+            }else {
+                view.setSelected(true);
+            }
         }
     }
 

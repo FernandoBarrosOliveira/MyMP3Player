@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
 
         musicaController = new MusicaController(this);
         setMusicaController();
-        //musicaController.show(0);
+
 
     }
 
@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
             MusicService.MusicaBinder musicaBinder = (MusicService.MusicaBinder)iBinder;
             musicService = musicaBinder.getService();
             musicService.setListaMusica(listaMusica);
+            musicService.setMusicaController(musicaController);
             musicBound = true;
 
         }
@@ -238,6 +239,8 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
         musicaController.setMediaPlayer(this);
         musicaController.setAnchorView(findViewById(R.id.recycler));
         musicaController.setEnabled(true);
+
+
     }
 
     private void playNext(){
@@ -247,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
             playBackPause=false;
         }
         musicaController.show(0);
+        ListaMusicaAdpter.ViewHolder.SelectItem(recyclerViewMusicas);
     }
 
     private void  playPrev(){
@@ -269,8 +273,12 @@ public class MainActivity extends AppCompatActivity implements OnMusicaClickList
         super.onResume();
         if (paused){
             setMusicaController();
+            if (musicaController != null){
+                musicaController.show(0);
+            }
             paused=false;
         }
+
     }
 
     @Override

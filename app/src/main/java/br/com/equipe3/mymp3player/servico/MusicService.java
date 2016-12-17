@@ -21,6 +21,7 @@ import java.util.List;
 
 import br.com.equipe3.mymp3player.R;
 import br.com.equipe3.mymp3player.activity.MainActivity;
+import br.com.equipe3.mymp3player.controller.MusicaController;
 import br.com.equipe3.mymp3player.model.Musica;
 
 /**
@@ -35,12 +36,17 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private final IBinder musicaBinder = new MusicaBinder();
     private String tituloMusica = "";
     private static final  int NOTIFY_ID = 1;
+    private MusicaController musicaController;
 
+    public void setMusicaController(MusicaController musicaController) {
+        this.musicaController = musicaController;
+    }
 
     public void onCreate(){
         posicaoMusica = 0;
         mediaPlayer = new MediaPlayer();
         iniciarMusicPlayer();
+        super.onCreate();
     }
 
     @Override
@@ -60,7 +66,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
+        public IBinder onBind(Intent intent) {
         return musicaBinder;
     }
 
@@ -87,6 +93,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         mediaPlayer.start();
+        musicaController.show(0);
 
         Intent notIntent = new Intent(this, MainActivity.class);
         notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -101,12 +108,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         builder.setContentTitle("Tocando");
         builder.setContentText(tituloMusica);
 
-        NotificationManager notificationManager = (NotificationManager)
-                getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
-      //  notificationManager.notify(NOTIFY_ID, builder.build());
-
-      Notification not = null;
+        Notification not = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
             not = builder.build();
         }
